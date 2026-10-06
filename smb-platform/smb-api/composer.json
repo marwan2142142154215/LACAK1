@@ -12,6 +12,7 @@
         "laravel/sanctum": "^4.3",
         "laravel/tinker": "^3.0",
         "maatwebsite/excel": "^4.0",
+        "pragmarx/google2fa": "^9.1",
         "predis/predis": "^3.6",
         "spatie/laravel-activitylog": "^4.12",
         "spatie/laravel-permission": "^8.3"

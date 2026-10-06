@@ -27,18 +27,21 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout']);
         Route::get('auth/me', [AuthController::class, 'me']);
+        Route::post('auth/2fa/enable', [AuthController::class, 'twoFactorEnable']);
+        Route::post('auth/2fa/verify', [AuthController::class, 'twoFactorVerify']);
+        Route::delete('auth/2fa', [AuthController::class, 'twoFactorDisable']);
 
-        Route::get('devices', [DeviceController::class, 'index']);
-        Route::get('devices/{device}', [DeviceController::class, 'show']);
-        Route::patch('devices/{device}', [DeviceController::class, 'update']);
-        Route::delete('devices/{device}', [DeviceController::class, 'destroy']);
+        Route::get('devices', [DeviceController::class, 'index'])->middleware('permission:devices.view');
+        Route::get('devices/{device}', [DeviceController::class, 'show'])->middleware('permission:devices.view');
+        Route::patch('devices/{device}', [DeviceController::class, 'update'])->middleware('permission:devices.update');
+        Route::delete('devices/{device}', [DeviceController::class, 'destroy'])->middleware('permission:devices.delete');
 
-        Route::post('devices/{device}/commands', [CommandController::class, 'store']);
-        Route::get('devices/{device}/commands', [CommandController::class, 'index']);
+        Route::post('devices/{device}/commands', [CommandController::class, 'store'])->middleware('permission:devices.command');
+        Route::get('devices/{device}/commands', [CommandController::class, 'index'])->middleware('permission:devices.view');
 
-        Route::get('devices/{device}/locations', [LocationController::class, 'index']);
-        Route::get('devices/{device}/locations/latest', [LocationController::class, 'latest']);
+        Route::get('devices/{device}/locations', [LocationController::class, 'index'])->middleware('permission:devices.location');
+        Route::get('devices/{device}/locations/latest', [LocationController::class, 'latest'])->middleware('permission:devices.location');
 
-        Route::post('registration-codes', [RegistrationController::class, 'generate']);
+        Route::post('registration-codes', [RegistrationController::class, 'generate'])->middleware('permission:devices.create');
     });
 });

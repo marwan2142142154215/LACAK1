@@ -14,6 +14,8 @@ test('registration code issue + device register flow', function () {
     $team = Team::create(['site_id' => $site->id, 'name' => 'Ops', 'code' => 'OPS']);
 
     $user = App\Models\User::factory()->create();
+    \Spatie\Permission\Models\Permission::create(['name' => 'devices.create']);
+    $user->givePermissionTo('devices.create');
     $token = $user->createToken('test')->plainTextToken;
 
     $response = postJson('/api/v1/registration-codes', ['site_id' => $site->id, 'team_id' => $team->id], ['Authorization' => "Bearer $token"]);
