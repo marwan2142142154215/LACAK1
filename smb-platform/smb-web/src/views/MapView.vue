@@ -25,8 +25,15 @@ onUnmounted(() => map?.remove())
 </script>
 
 <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-bold mb-4">Peta Device</h1>
-    <div ref="el" style="height: 70vh"></div>
+  <div class="min-h-screen bg-gray-50">
+    <div class="max-w-7xl mx-auto p-6 space-y-6">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">Peta Device</h1>
+        <p class="text-sm text-gray-500 mt-1">Posisi perangkat dalam peta secara real-time</p>
+      </div>
+      <div class="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div ref="el" class="h-[70vh] w-full"></div>
+      </div>
+    </div>
   </div>
 </template>
