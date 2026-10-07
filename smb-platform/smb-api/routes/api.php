@@ -21,9 +21,9 @@ Route::prefix('v1')->group(function () {
     });
 
     // Public device registration (uses registration code)
-    Route::post('devices/register', [RegistrationController::class, 'register']);
+    Route::post('devices/register', [RegistrationController::class, 'register'])->middleware('throttle:5,1');
 
-    Route::post('auth/login', [AuthController::class, 'login']);
+    Route::post('auth/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
 
     // Admin-protected endpoints (Sanctum + permission middleware added later)
     Route::middleware('auth:sanctum')->group(function () {
