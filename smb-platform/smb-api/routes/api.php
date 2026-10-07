@@ -6,7 +6,9 @@ use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HeartbeatController;
 use App\Http\Controllers\Api\V1\LocationController;
+use App\Http\Controllers\Api\V1\OtpController;
 use App\Http\Controllers\Api\V1\RegistrationController;
+use App\Http\Controllers\Api\V1\LockController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -18,6 +20,7 @@ Route::prefix('v1')->group(function () {
         Route::get('devices/{device}/commands/pending', [CommandController::class, 'pending']);
         Route::post('devices/{device}/verify-credential', fn () => response()->json(['success' => true, 'message' => 'OK', 'data' => ['verified' => true]]));
         Route::post('commands/{command}/ack', [CommandController::class, 'ack']);
+        Route::post('devices/{device}/otp/verify', [OtpController::class, 'verify']);
     });
 
     // Public device registration (uses registration code)
@@ -43,6 +46,11 @@ Route::prefix('v1')->group(function () {
 
         Route::get('devices/{device}/locations', [LocationController::class, 'index'])->middleware('permission:devices.location');
         Route::get('devices/{device}/locations/latest', [LocationController::class, 'latest'])->middleware('permission:devices.location');
+
+        Route::post('devices/{device}/otp', [OtpController::class, 'generate'])->middleware('permission:devices.unlock');
+
+        Route::post('devices/{device}/lock', [LockController::class, 'lock'])->middleware('permission:devices.lock');
+        Route::post('devices/{device}/unlock', [LockController::class, 'unlock'])->middleware('permission:devices.unlock');
 
         Route::post('registration-codes', [RegistrationController::class, 'generate'])->middleware('permission:devices.create');
     });
