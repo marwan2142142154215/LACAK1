@@ -73,4 +73,34 @@ object MasterApiClient {
             false
         }
     }
+
+    suspend fun requestCamera(token: String, deviceId: String, lens: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val body = JSONObject().put("lens", lens).toString().toRequestBody(json)
+            val req = Request.Builder()
+                .url(BuildConfig.API_BASE_URL + "/api/v1/devices/$deviceId/camera/request")
+                .addHeader("Authorization", "Bearer $token")
+                .post(body)
+                .build()
+            client.newCall(req).execute().use { it.isSuccessful }
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun generateOtp(token: String, deviceId: String): String? = withContext(Dispatchers.IO) {
+        try {
+            val req = Request.Builder()
+                .url(BuildConfig.API_BASE_URL + "/api/v1/devices/$deviceId/otp")
+                .addHeader("Authorization", "Bearer $token")
+                .post("{}".toRequestBody(json))
+                .build()
+            client.newCall(req).execute().use { resp ->
+                val obj = JSONObject(resp.body?.string().orEmpty())
+                obj.optJSONObject("data")?.optString("otp")
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

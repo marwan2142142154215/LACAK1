@@ -23,13 +23,19 @@
 - API 29+: background location butuh separate permission — SMB Lacak hanya collect saat app aktif / foreground service (jujur: location mungkin tidak selalu update saat background)
 - API 31+: eksak foreground service type untuk dataSync — sudah dideklarasikan
 
+## Implementasi saat ini
+
+- **SMB Lacak**: registrasi device, heartbeat tiap 30s (baterai + versi + Android API), **lokasi real via FusedLocationProvider** (`LocationHelper.lastLocation`) yang dikirim bersama heartbeat ke `device_heartbeats`/`device_locations`, WebSocket client dengan reconnect, command ack, `BootReceiver` auto-start.
+- **SMB Master**: login admin (Sanctum), daftar device, detail device dengan aksi lock / unlock / request lokasi / request kamera (front/back) / generate OTP.
+
 ## Kemampuan & fallback yang jujur
 
 | Fitur | Kondisi tidak tersedia | Status laporan |
 |---|---|---|
 | Camera capture | background restricted / tanpa permission / Device Owner tanpa policy | `FAILED` dengan reason jelas; tidak mengembalikan SUCCESS palsu |
-| Location | permission denied / GPS off / network unavailable | `last known` + `timestamp` + `source` dilaporkan; tidak diekstrak paksa |
+| Location | permission denied / GPS off / network unavailable | `last known` + `timestamp` + `source` dilaporkan; layanan mengembalikan `null` (bukan koordinat palsu) |
 | Silent lock device | tidak Device Owner | UI lock ditampilkan di app; full lock memerlukan Device Owner / lock task mode |
+| Upload foto ke DO Spaces | kredensial Spaces belum diisi | dicatat sebagai belum aktif; kamera tetap mengembalikan status jujur |
 
 ## Boot recovery
 

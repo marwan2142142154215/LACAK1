@@ -32,9 +32,15 @@ object DeviceApiClient {
         }
     }
 
-    suspend fun heartbeat(deviceId: String, token: String, battery: Int?): Boolean = withContext(Dispatchers.IO) {
+    suspend fun heartbeat(deviceId: String, token: String, battery: Int?, lat: Double? = null, lng: Double? = null, accuracy: Float? = null): Boolean = withContext(Dispatchers.IO) {
         try {
-            val body = JSONObject().put("battery_level", battery).put("app_version", BuildConfig.VERSION_NAME).put("android_api", android.os.Build.VERSION.SDK_INT).toString().toRequestBody(json)
+            val payload = JSONObject().put("battery_level", battery).put("app_version", BuildConfig.VERSION_NAME).put("android_api", android.os.Build.VERSION.SDK_INT)
+            if (lat != null && lng != null) {
+                payload.put("latitude", lat).put("longitude", lng)
+                if (accuracy != null) payload.put("accuracy", accuracy)
+                payload.put("source", "fused")
+            }
+            val body = payload.toString().toRequestBody(json)
             val req = Request.Builder().url("${BuildConfig.API_BASE_URL}/api/v1/devices/$deviceId/heartbeat")
                 .addHeader("Authorization", "Bearer $token").post(body).build()
             client.newCall(req).execute().use { it.isSuccessful }

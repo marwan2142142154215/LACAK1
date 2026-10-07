@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <Button android:id="@+id/btnLock" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <Button android:id="@+id/btnUnlock" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <Button android:id="@+id/btnLocation" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <Button android:id="@+id/btnCameraFront" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <Button android:id="@+id/btnCameraBack" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <Button android:id="@+id/btnOtp" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Generate OTP" />
+    <TextView android:id="@+id/txtStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" />
+</LinearLayout>

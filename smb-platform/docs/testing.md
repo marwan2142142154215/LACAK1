@@ -24,7 +24,20 @@ node --input-type=module -e "import WebSocket from 'ws'; const ws = new WebSocke
 
 ## Web (Vitest)
 
-Belum ada test unit Vue. Rencana: test `api.js` interceptor & mapping GeoJSON via Vitest. (Caveat: dashboard bersifat thin client pada Laravel API yang sudah ter-cover Pest.)
+```
+cd smb-platform/smb-web
+npm test
+```
+
+Suite yang ada (3 file tests via Vitest + jsdom + @vue/test-utils):
+- `api.test.js`: base URL `/api/v1`, header `Authorization: Bearer` ada saat token tersimpan, absen saat tidak ada token
+- `Login.test.js`: simpan token + redirect ke `/dashboard` saat sukses, tampilkan pesan error server saat gagal
+
+Hasil saat ini: **5 passed**.
+
+## Observability (Sentry)
+
+Sentry bersifat opt-in di SMB Web: aktif hanya bila `VITE_SENTRY_DSN` di-set saat build (`npm run build`). Tanpa DSN, blok inisialisasi ter-tree-shake dan tidak menambah bundle. Konfigurasi ada di `src/main.js` + `.env.example`.
 
 ## Android
 

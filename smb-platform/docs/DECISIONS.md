@@ -36,3 +36,12 @@ Poller berbasis `php artisan telegram:poll` (long-poll getUpdates) yang memetaka
 
 ## 10. Environment directories
 Semua komponen memakai `.env` lokal — tidak ada secret di repo.
+
+## 11. Real GPS di SMB Lacak
+Lokasi diambil via `FusedLocationProviderClient.lastLocation` (play-services-location 21.3.0 + kotlinx-coroutines-play-services). Jika permission tidak ada atau lokasi tidak tersedia, `null` dikirim — tidak ada koordinat palsu. Lokasi disertakan pada heartbeat HTTP dan WS.
+
+## 12. Observability & test web
+Sentry di SMB Web bersifat opt-in (`VITE_SENTRY_DSN`); tanpa DSN kode ter-tree-shake. SMB Web memiliki test Vitest (api interceptor + Login.vue) yang berjalan via `npm test`.
+
+## 13. Telegram
+Token bot dimasukkan ke `.env` lokal saja (tidak di-commit). CA bundle PHP (`curl.cainfo`/`openssl.cafile`) di-set ke `cacert.pem` untuk memperbaiki verifikasi TLS ke api.telegram.org pada build PHP winget.

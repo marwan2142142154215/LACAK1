@@ -12,6 +12,7 @@ import android.os.PowerManager
 import android.util.Log
 import com.smb.tracker.data.CommandHandler
 import com.smb.tracker.data.DeviceApiClient
+import com.smb.tracker.data.LocationHelper
 import com.smb.tracker.data.WebSocketClient
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
@@ -60,8 +61,9 @@ class TrackingService : Service(), CommandHandler {
                 val bm = getSystemService(BATTERY_SERVICE) as android.os.BatteryManager
                 bm.getIntProperty(android.os.BatteryManager.BATTERY_PROPERTY_CAPACITY)
             } else null
-            DeviceApiClient.heartbeat(deviceId, token, battery)
-            wsClient?.send(JSONObject().put("type", "device.heartbeat").put("payload", JSONObject().put("battery_level", battery)).toString())
+            val loc = LocationHelper.lastLocation(applicationContext)
+            DeviceApiClient.heartbeat(deviceId, token, battery, loc?.latitude, loc?.longitude, loc?.accuracy)
+            wsClient?.send(JSONObject().put("type", "device.heartbeat").put("payload", JSONObject().put("battery_level", battery).put("latitude", loc?.latitude).put("longitude", loc?.longitude).put("accuracy", loc?.accuracy)).toString())
             delay(30_000)
         }
     }

@@ -1,5 +1,6 @@
 package com.smb.master.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -32,10 +33,7 @@ class DeviceListActivity : AppCompatActivity() {
         list.setOnItemClickListener { _, _, position, _ ->
             val line = adapter.getItem(position) ?: return@setOnItemClickListener
             val id = line.substringBefore('|').trim()
-            lifecycleScope.launch {
-                val ok = MasterApiClient.action(token, id, "location/request")
-                status.text = if (ok) "Location requested for $id" else "Gagal request lokasi"
-            }
+            startActivity(Intent(this, DeviceDetailActivity::class.java).putExtra("token", token).putExtra("device_id", id))
         }
 
         load(status)
