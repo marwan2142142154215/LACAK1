@@ -1,0 +1,12 @@
+R_DEF: Internal format may change without notice
+local
+id btnLogin
+id btnRefresh
+id edtEmail
+id edtPassword
+id listDevices
+id txtStatus
+layout activity_device_list
+layout activity_login
+string app_name
+style Theme.SMBMaster

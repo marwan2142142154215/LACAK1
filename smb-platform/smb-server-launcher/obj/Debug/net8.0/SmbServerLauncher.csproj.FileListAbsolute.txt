@@ -1,0 +1,15 @@
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\bin\Debug\net8.0\SmbServerLauncher.exe
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\bin\Debug\net8.0\SmbServerLauncher.deps.json
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\bin\Debug\net8.0\SmbServerLauncher.runtimeconfig.json
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\bin\Debug\net8.0\SmbServerLauncher.dll
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\bin\Debug\net8.0\SmbServerLauncher.pdb
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\SmbServerLauncher.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\SmbServerLauncher.AssemblyInfoInputs.cache
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\SmbServerLauncher.AssemblyInfo.cs
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\SmbServerLauncher.csproj.CoreCompileInputs.cache
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\SmbServerLauncher.sourcelink.json
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\SmbServerLauncher.dll
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\refint\SmbServerLauncher.dll
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\SmbServerLauncher.pdb
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\SmbServerLauncher.genruntimeconfig.cache
+C:\Users\ACE COMPUTER\Documents\apk opencode\smb-platform\smb-server-launcher\obj\Debug\net8.0\ref\SmbServerLauncher.dll

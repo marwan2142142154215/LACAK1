@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "com.smb.master.app-debug-41:/layout_activity_login.xml.flat",
+        "source": "com.smb.master.app-main-43:/layout/activity_login.xml"
+    },
+    {
+        "merged": "com.smb.master.app-debug-41:/layout_activity_device_list.xml.flat",
+        "source": "com.smb.master.app-main-43:/layout/activity_device_list.xml"
+    }
+]
