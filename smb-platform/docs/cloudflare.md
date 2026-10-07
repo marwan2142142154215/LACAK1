@@ -6,47 +6,56 @@ Domain resmi: `lacaksmbbot.com` (DNS di Cloudflare).
 
 | Hostname | Origin service | Catatan |
 |---|---|---|
-| `app.lacaksmbbot.com` | `http://127.0.0.1:5173` | SMB Web (Vite) — produksi `smb-web/dist` static |
+| `app.lacaksmbbot.com` | `http://127.0.0.1:4173` | SMB Web — bundle produksi `smb-web/dist` disajikan `scripts/static-server.js` (SPA) |
 | `api.lacaksmbbot.com` | `http://127.0.0.1:8100` | Laravel API |
-| `ws.lacaksmbbot.com` | `http://127.0.0.1:3333` (WS `:8080`) | AdonisJS gateway — perlu WS route ke 8080 |
-| `download.lacaksmbbot.com` | static dir `smb-downloads` | Download APK & docs |
+| `ws.lacaksmbbot.com` | `http://127.0.0.1:8080` | AdonisJS WebSocket gateway |
+| `download.lacaksmbbot.com` | `http://127.0.0.1:8081` | static dir `smb-downloads` (APK) |
+| `broker.lacaksmbbot.com` | `https://127.0.0.1:8787` | (milik proyek lain, dipertahankan) |
 
-Semua production wajib HTTPS/WSS.
+Semua production wajib HTTPS/WSS. Status terverifikasi:
+`api` → 200, `ws` → 426 (server WS hidup), `app` → 200, `download` → 200.
 
 ## 2. Cloudflare Tunnel (cloudflared)
 
-Install cloudflared sebagai Windows service:
+Tunnel: **`LACAKSMB`** (`016877bc-4115-4700-9e16-0ad256e82d64`), **remotely-managed** — service Windows berjalan dengan `--token-file C:\ProgramData\cloudflared\token`, jadi ingress diatur dari sisi Cloudflare (dashboard atau API), bukan `config.yml` lokal.
+
+Ingress aktif (urut, catch-all terakhir):
+
+```json
+{
+  "config": {
+    "ingress": [
+      { "hostname": "broker.lacaksmbbot.com", "service": "https://127.0.0.1:8787", "originRequest": { "noTLSVerify": true } },
+      { "hostname": "api.lacaksmbbot.com",      "service": "http://127.0.0.1:8100" },
+      { "hostname": "ws.lacaksmbbot.com",       "service": "http://127.0.0.1:8080" },
+      { "hostname": "app.lacaksmbbot.com",      "service": "http://127.0.0.1:4173" },
+      { "hostname": "download.lacaksmbbot.com", "service": "http://127.0.0.1:8081" },
+      { "service": "http_status:404" }
+    ],
+    "warp-routing": { "enabled": false }
+  }
+}
+```
+
+Push ingress via API (butuh token dengan izin **Cloudflare Tunnel: Edit**):
 
 ```powershell
-cloudflared service install <TUNNEL_TOKEN>
+Invoke-RestMethod -Method PUT `
+  -Uri "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/cfd_tunnel/$CLOUDFLARE_TUNNEL_ID/configurations" `
+  -Headers @{ Authorization = "Bearer $CF_API_TOKEN"; 'Content-Type' = 'application/json' } `
+  -Body $body
 ```
 
-Buat tunnel di Cloudflare Zero Trust → Networks → Tunnels, lalu arahkan hostname di atas ke origin service lokal. Tunnel menangani HTTPS/WSS, jadi tidak perlu membuka port inbound router.
-
-Konfigurasi tunnel (`%ProgramData%\cloudflared\config.yml`):
-
-```yaml
-tunnel: <TUNNEL_ID>
-credentials-file: C:\ProgramData\cloudflared\<TUNNEL_ID>.json
-
-ingress:
-  - hostname: app.lacaksmbbot.com
-    service: http://127.0.0.1:5173
-  - hostname: api.lacaksmbbot.com
-    service: http://127.0.0.1:8100
-  - hostname: ws.lacaksmbbot.com
-    service: http://127.0.0.1:8080
-  - hostname: download.lacaksmbbot.com
-    service: http://127.0.0.1:8081
-  - service: http_status:404
-```
-
-Mulai & set auto-start:
+DNS CNAME dibuat dengan kredensial lokal (`cert.pem`), tanpa perlu API token DNS:
 
 ```powershell
-cloudflared service install
-sc config cloudflared start= auto
+cloudflared tunnel route dns LACAKSMB api.lacaksmbbot.com
+cloudflared tunnel route dns LACAKSMB ws.lacaksmbbot.com
+cloudflared tunnel route dns LACAKSMB app.lacaksmbbot.com
+cloudflared tunnel route dns LACAKSMB download.lacaksmbbot.com
 ```
+
+Service auto-start (sudah terpasang): `Get-Service Cloudflared` → `Running` / `Automatic`.
 
 ## 3. SSL/TLS
 
@@ -70,12 +79,25 @@ Cloudflare WebSocket sudah include di DNS proxy — WSS terminasi di edge lalu d
 
 ## 7. Secrets (TIDAK di-commit)
 
-`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_TUNNEL_ID`, `CLOUDFLARE_TUNNEL_TOKEN` harus di `.env` (lokal) atau secret manager. Contoh `.env`:
+`CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_TUNNEL_ID`, dan token API hanya di `.env` lokal (git-ignored) atau secret manager. `.env` saat ini sudah berisi `CLOUDFLARE_ACCOUNT_ID` dan `CLOUDFLARE_TUNNEL_ID`; **jangan commit nilai apa pun dari file `.env`.**
 
 ```
 CLOUDFLARE_ACCOUNT_ID=
 CLOUDFLARE_TUNNEL_ID=
-CLOUDFLARE_TUNNEL_TOKEN=
+CF_API_TOKEN=            # hanya untuk operasi API manual, jangan di-commit
 ```
 
-Tidak ada secret ini di repo.
+## 8. Operasional (scripts/)
+
+| Script | Fungsi |
+|---|---|
+| `scripts/start-all.ps1` | Nyalakan semua service lokal (idempotent) |
+| `scripts/stop-all.ps1` | Matikan service aplikasi (tunnel tidak disentuh) |
+| `scripts/status.ps1` | Cek port lokal + endpoint publik via tunnel |
+| `scripts/register-autostart.ps1` | (opsional, perlu admin) daftar scheduled task logon |
+| `scripts/autostart.cmd` | Dipanggil dari Startup folder saat logon |
+| `scripts/publish-downloads.ps1` | Salin APK hasil build ke `smb-downloads/` |
+
+Autostart tanpa admin sudah dipasang lewat Startup folder:
+`%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\SMB Platform.cmd`
+→ menunggu 45 detik (Docker Desktop), lalu menjalankan `start-all.ps1`.
