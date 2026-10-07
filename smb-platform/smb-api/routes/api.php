@@ -46,6 +46,9 @@ Route::prefix('v1')->group(function () {
 
         Route::get('devices/{device}/locations', [LocationController::class, 'index'])->middleware('permission:devices.location');
         Route::get('devices/{device}/locations/latest', [LocationController::class, 'latest'])->middleware('permission:devices.location');
+        Route::post('devices/{device}/location/request', [LocationController::class, 'requestNow'])->middleware('permission:devices.location');
+        Route::post('devices/{device}/camera/request', [LocationController::class, 'requestCamera'])->middleware('permission:devices.camera');
+        Route::get('map/devices', [LocationController::class, 'mapGeoJson'])->middleware('permission:devices.view');
 
         Route::post('devices/{device}/otp', [OtpController::class, 'generate'])->middleware('permission:devices.unlock');
 
