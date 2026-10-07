@@ -35,6 +35,10 @@ Suite yang ada (3 file tests via Vitest + jsdom + @vue/test-utils):
 
 Hasil saat ini: **5 passed**.
 
+## Media & Spaces
+
+Media device diunggah ke `POST /api/v1/devices/{device}/media`. Controller memilih disk `spaces` hanya bila `DO_SPACES_KEY` dan `DO_SPACES_BUCKET` terisi; jika tidak jatuh ke disk `local` (private). Download melalui `GET /api/v1/media/{media}/download` sehingga bucket tetap privat. Pest `MediaTest` menguji: upload image sukses tersimpan (`local:`), dan upload non-image ditolak (422). Total backend: **9 passed**.
+
 ## Observability (Sentry)
 
 Sentry bersifat opt-in di SMB Web: aktif hanya bila `VITE_SENTRY_DSN` di-set saat build (`npm run build`). Tanpa DSN, blok inisialisasi ter-tree-shake dan tidak menambah bundle. Konfigurasi ada di `src/main.js` + `.env.example`.

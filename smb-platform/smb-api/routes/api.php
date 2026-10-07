@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\DeviceController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\HeartbeatController;
 use App\Http\Controllers\Api\V1\LocationController;
+use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\OtpController;
 use App\Http\Controllers\Api\V1\RegistrationController;
 use App\Http\Controllers\Api\V1\LockController;
@@ -21,6 +22,7 @@ Route::prefix('v1')->group(function () {
         Route::post('devices/{device}/verify-credential', fn () => response()->json(['success' => true, 'message' => 'OK', 'data' => ['verified' => true]]));
         Route::post('commands/{command}/ack', [CommandController::class, 'ack']);
         Route::post('devices/{device}/otp/verify', [OtpController::class, 'verify']);
+        Route::post('devices/{device}/media', [MediaController::class, 'store']);
     });
 
     // Public device registration (uses registration code)
@@ -51,6 +53,10 @@ Route::prefix('v1')->group(function () {
         Route::get('map/devices', [LocationController::class, 'mapGeoJson'])->middleware('permission:devices.view');
 
         Route::post('devices/{device}/otp', [OtpController::class, 'generate'])->middleware('permission:devices.unlock');
+
+        Route::get('devices/{device}/media', [MediaController::class, 'index'])->middleware('permission:devices.camera');
+        Route::get('media/{media}', [MediaController::class, 'show'])->middleware('permission:devices.camera');
+        Route::get('media/{media}/download', [MediaController::class, 'download'])->name('api.v1.media.download')->middleware('permission:devices.camera');
 
         Route::post('devices/{device}/lock', [LockController::class, 'lock'])->middleware('permission:devices.lock');
         Route::post('devices/{device}/unlock', [LockController::class, 'unlock'])->middleware('permission:devices.unlock');

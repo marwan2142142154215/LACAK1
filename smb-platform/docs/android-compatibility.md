@@ -25,8 +25,17 @@
 
 ## Implementasi saat ini
 
-- **SMB Lacak**: registrasi device, heartbeat tiap 30s (baterai + versi + Android API), **lokasi real via FusedLocationProvider** (`LocationHelper.lastLocation`) yang dikirim bersama heartbeat ke `device_heartbeats`/`device_locations`, WebSocket client dengan reconnect, command ack, `BootReceiver` auto-start.
+- **SMB Lacak**: registrasi device, heartbeat tiap 30s (baterai + versi + Android API), **lokasi real via FusedLocationProvider** (`LocationHelper.lastLocation`) yang dikirim bersama heartbeat ke `device_heartbeats`/`device_locations`, WebSocket client dengan reconnect, command ack, `BootReceiver` auto-start, **kamera real via CameraX** (`CameraController`) untuk `camera_request`, **upload media** ke `/devices/{id}/media` (DO Spaces bila dikonfigurasi, fallback local).
 - **SMB Master**: login admin (Sanctum), daftar device, detail device dengan aksi lock / unlock / request lokasi / request kamera (front/back) / generate OTP.
+
+### Perilaku command di device
+
+| command_type | Aksi | Hasil jujur |
+|---|---|---|
+| `lock` | buka app ke depan (Device Owner dibutuhkan untuk lock penuh) | `SUCCESS` (UI lock) |
+| `unlock` | ack | `SUCCESS` |
+| `location_request` | ambil `lastLocation` | `SUCCESS` (lat,lng) / `FAILED` alasan |
+| `camera_request` | `CameraController.capture` bila app di depan | `SUCCESS` (media_id) / `FAILED` alasan (background/izin) |
 
 ## Kemampuan & fallback yang jujur
 

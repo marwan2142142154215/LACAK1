@@ -45,3 +45,9 @@ Sentry di SMB Web bersifat opt-in (`VITE_SENTRY_DSN`); tanpa DSN kode ter-tree-s
 
 ## 13. Telegram
 Token bot dimasukkan ke `.env` lokal saja (tidak di-commit). CA bundle PHP (`curl.cainfo`/`openssl.cafile`) di-set ke `cacert.pem` untuk memperbaiki verifikasi TLS ke api.telegram.org pada build PHP winget.
+
+## 14. Media storage (DigitalOcean Spaces)
+Disk `spaces` (S3-compatible) dipilih otomatis hanya bila `DO_SPACES_KEY` + `DO_SPACES_BUCKET` terisi; sebaliknya disk `local` privat. Download selalu lewat API (`/media/{media}/download`) agar bucket tidak perlu publik. Kredensial `DO_SPACES_*` hanya di `.env`.
+
+## 15. Kamera Android
+Capture nyata via CameraX hanya saat Activity di depan (Android memblokir kamera background). Bila tidak memungkinkan, device mengirim ACK `FAILED` dengan alasan eksplisit — tidak ada klaim sukses palsu. Hasil capture diunggah ke media API.

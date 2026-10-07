@@ -5,10 +5,13 @@ import com.smb.tracker.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import java.io.File
 
 object DeviceApiClient {
     private val client = OkHttpClient()
@@ -58,6 +61,31 @@ object DeviceApiClient {
             client.newCall(req).execute().use { it.isSuccessful }
         } catch (e: Exception) {
             false
+        }
+    }
+
+    suspend fun uploadMedia(deviceId: String, token: String, file: File, lens: String, commandId: String?): Result<Long> = withContext(Dispatchers.IO) {
+        try {
+            val form = MultipartBody.Builder().setType(MultipartBody.FORM)
+                .addFormDataPart("file", file.name, file.asRequestBody("image/jpeg".toMediaType()))
+                .addFormDataPart("camera_lens", lens)
+                .addFormDataPart("media_type", "photo")
+            if (commandId != null) form.addFormDataPart("command_id", commandId)
+
+            val req = Request.Builder()
+                .url("${BuildConfig.API_BASE_URL}/api/v1/devices/$deviceId/media")
+                .addHeader("Authorization", "Bearer $token")
+                .post(form.build())
+                .build()
+            client.newCall(req).execute().use { resp ->
+                val obj = JSONObject(resp.body?.string().orEmpty())
+                if (!resp.isSuccessful || !obj.optBoolean("success", false)) {
+                    return@withContext Result.failure(Exception(obj.optString("message", "Upload media gagal")))
+                }
+                Result.success(obj.getJSONObject("data").optLong("id"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

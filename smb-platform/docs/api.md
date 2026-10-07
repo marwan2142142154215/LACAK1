@@ -57,6 +57,15 @@ Error:
 | GET | `/devices/{device}/locations/latest` | lokasi terakhir |
 | GET | `/map/devices` | GeoJSON FeatureCollection untuk peta dashboard |
 
+## Media
+
+| Method | Path | Description |
+|---|---|---|
+| POST | `/devices/{device}/media` | **device-authenticated** upload foto (multipart: `file`, `camera_lens`, `command_id`). Disimpan ke DO Spaces bila terkonfigurasi, jika tidak ke disk `local`. |
+| GET | `/devices/{device}/media` | daftar media device (admin, paginasi) |
+| GET | `/media/{media}` | detail media + URL download |
+| GET | `/media/{media}/download` | stream objek (bekerja untuk lokal maupun Spaces privat) |
+
 ## Registration codes
 
 | POST | `/registration-codes` | admin generate code untuk site_id + team_id (single-use, 24h expiry) |

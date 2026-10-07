@@ -10,8 +10,10 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.util.Log
+import com.smb.tracker.data.CameraController
 import com.smb.tracker.data.CommandHandler
 import com.smb.tracker.data.DeviceApiClient
+import com.smb.tracker.data.DeviceStore
 import com.smb.tracker.data.LocationHelper
 import com.smb.tracker.data.WebSocketClient
 import kotlinx.coroutines.*
@@ -75,8 +77,48 @@ class TrackingService : Service(), CommandHandler {
                 lockTaskEffect()
                 DeviceApiClient.ack(commandId, tokenFallback(), "SUCCESS", result = "locked")
             }
+
+            "unlock" -> {
+                DeviceApiClient.ack(commandId, tokenFallback(), "EXECUTING")
+                DeviceApiClient.ack(commandId, tokenFallback(), "SUCCESS", result = "unlocked")
+            }
+
+            "location_request" -> {
+                DeviceApiClient.ack(commandId, tokenFallback(), "EXECUTING")
+                val loc = LocationHelper.lastLocation(applicationContext)
+                if (loc == null) {
+                    DeviceApiClient.ack(commandId, tokenFallback(), "FAILED", error = "Lokasi tidak tersedia (izin ditolak atau GPS mati)")
+                } else {
+                    val store = DeviceStore(applicationContext)
+                    val deviceId = store.deviceId.first() ?: ""
+                    DeviceApiClient.heartbeat(deviceId, tokenFallback(), null, loc.latitude, loc.longitude, loc.accuracy)
+                    DeviceApiClient.ack(commandId, tokenFallback(), "SUCCESS", result = "${loc.latitude},${loc.longitude}")
+                }
+            }
+
+            "camera_request" -> {
+                DeviceApiClient.ack(commandId, tokenFallback(), "EXECUTING")
+                val lens = payload?.optString("lens")?.ifBlank { "back" } ?: "back"
+                when (val capture = CameraController.capture(applicationContext, lens)) {
+                    is CameraController.CaptureResult.Success -> {
+                        val store = DeviceStore(applicationContext)
+                        val deviceId = store.deviceId.first() ?: ""
+                        val upload = DeviceApiClient.uploadMedia(deviceId, tokenFallback(), capture.file, lens, commandId)
+                        if (upload.isSuccess) {
+                            DeviceApiClient.ack(commandId, tokenFallback(), "SUCCESS", result = "media_id=${upload.getOrNull()}")
+                        } else {
+                            DeviceApiClient.ack(commandId, tokenFallback(), "FAILED", error = "Gagal upload media: ${upload.exceptionOrNull()?.message}")
+                        }
+                        capture.file.delete()
+                    }
+                    is CameraController.CaptureResult.Failure -> {
+                        DeviceApiClient.ack(commandId, tokenFallback(), "FAILED", error = capture.reason)
+                    }
+                }
+            }
+
             else -> {
-                DeviceApiClient.ack(commandId, tokenFallback(), "SUCCESS", result = "unsupported_or_noop_${commandType}")
+                DeviceApiClient.ack(commandId, tokenFallback(), "FAILED", error = "Perintah tidak didukung oleh perangkat: $commandType")
             }
         }
     }

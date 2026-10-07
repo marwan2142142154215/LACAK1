@@ -1,13 +1,19 @@
 package com.smb.tracker.ui
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.smb.tracker.R
+import com.smb.tracker.data.CameraController
 import com.smb.tracker.data.DeviceApiClient
 import com.smb.tracker.data.DeviceStore
 import com.smb.tracker.service.TrackingService
@@ -22,6 +28,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         store = DeviceStore(this)
+
+        requestRuntimePermissions()
 
         val codeInput = findViewById<EditText>(R.id.edtCode)
         val btnRegister = findViewById<Button>(R.id.btnRegister)
@@ -63,5 +71,31 @@ class MainActivity : AppCompatActivity() {
     private fun startServiceCompat() {
         val i = Intent(this, TrackingService::class.java)
         if (android.os.Build.VERSION.SDK_INT >= 26) startForegroundService(i) else startService(i)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        CameraController.attach(this)
+    }
+
+    override fun onStop() {
+        CameraController.detach()
+        super.onStop()
+    }
+
+    private fun requestRuntimePermissions() {
+        val needed = mutableListOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        )
+        if (Build.VERSION.SDK_INT >= 33) needed.add(Manifest.permission.POST_NOTIFICATIONS)
+
+        val missing = needed.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+        if (missing.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 100)
+        }
     }
 }
