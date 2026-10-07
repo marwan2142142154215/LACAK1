@@ -121,15 +121,15 @@ function resetTwoFactorFlow() {
 
       <div v-if="!twoFactorSetupMode" class="space-y-4">
         <div class="space-y-2">
-          <label for="email" class="text-sm font-medium text-gray-700">Email</label>
+          <label for="email" class="text-sm font-medium text-gray-700">Username / Email</label>
           <input
             id="email"
             v-model="email"
-            type="email"
-            placeholder="nama@perusahaan.com"
+            type="text"
+            placeholder="mastermarwan"
             class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             required
-            autocomplete="email"
+            autocomplete="username"
           />
         </div>
         <div class="space-y-2">

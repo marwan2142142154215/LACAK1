@@ -16,15 +16,18 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $data = $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|string',
             'password' => 'required|string',
             'device_name' => 'required|string|max:128',
         ]);
 
-        $user = User::where('email', $data['email'])->first();
+        $identifier = $data['email'];
+        $user = User::where('email', $identifier)
+            ->orWhere('name', $identifier)
+            ->first();
 
         if (!$user || !Hash::check($data['password'], $user->password)) {
-            activity()->withProperties(['email' => $data['email']])->log('auth.login.failed');
+            activity()->withProperties(['email' => $identifier])->log('auth.login.failed');
             return $this->fail('Kredensial tidak valid.', [], 401);
         }
 
