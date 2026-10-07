@@ -1,9 +1,0 @@
-R_DEF: Internal format may change without notice
-local
-id btnRegister
-id btnStart
-id edtCode
-id txtStatus
-layout activity_main
-string app_name
-style Theme.SMBTracker
