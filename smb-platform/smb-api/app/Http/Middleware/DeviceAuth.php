@@ -12,7 +12,10 @@ class DeviceAuth
     public function handle(Request $request, Closure $next): Response
     {
         $deviceParam = $request->route('device');
-        $deviceId = $deviceParam instanceof \App\Models\Device ? $deviceParam->id : ($deviceParam ?? $request->input('device_id'));
+        $commandParam = $request->route('command');
+        $deviceId = $deviceParam instanceof \App\Models\Device
+            ? $deviceParam->id
+            : ($deviceParam instanceof \App\Models\DeviceCommand ? $deviceParam->device_id : ($deviceParam ?? $commandParam?->device_id ?? $request->input('device_id')));
         $token = $request->bearerToken();
 
         if (!$deviceId || !$token) {

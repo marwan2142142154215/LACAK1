@@ -57,6 +57,17 @@ class CommandController extends Controller
         ]);
     }
 
+    public function pending(Device $device)
+    {
+        $commands = $device->commands()
+            ->whereIn('status', ['QUEUED', 'SENT'])
+            ->where(fn ($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>', now()))
+            ->orderBy('created_at')
+            ->get(['id', 'device_id', 'command_type', 'payload', 'expires_at', 'status']);
+
+        return $this->ok($commands);
+    }
+
     public function ack(Request $request, DeviceCommand $command)
     {
         $data = $request->validate([

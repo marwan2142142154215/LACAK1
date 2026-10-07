@@ -15,6 +15,8 @@ Route::prefix('v1')->group(function () {
     // Device-authenticated endpoints
     Route::middleware('device.auth')->group(function () {
         Route::post('devices/{device}/heartbeat', [HeartbeatController::class, 'store']);
+        Route::get('devices/{device}/commands/pending', [CommandController::class, 'pending']);
+        Route::post('devices/{device}/verify-credential', fn () => response()->json(['success' => true, 'message' => 'OK', 'data' => ['verified' => true]]));
         Route::post('commands/{command}/ack', [CommandController::class, 'ack']);
     });
 
